@@ -25,6 +25,134 @@ more separate. Each of these packages can be used independently outside of
 Rails. You can read more about Action Pack in
 link:files/vendor/rails/actionpack/README.html.
 
+Rspect Vi Dụ :=======================================================================
+Ta hãy làm quen với Rspec ví dụ Rspec cho model User dưới đây:
+
+ruby
+  describe User do
+    it "is valid, with a firstname, lastname, and email"
+    it "is invalid without a firstname"
+    it "is invalid without a lastname"
+    it "is invalid without an email"
+    it "is invalid with duplicate email"
+    it "return a user's full name as a string"
+  end
+  
+  Bắt đầu việt Rspec một cách thực thụ 😃
+Hãy sửa lại file spec của bạn như sau:
+
+ruby
+  describe User do
+    it "is valid with a firstname, lastname, and email" do
+    user = User.new(
+      firstname: "Tho"
+      lastname: "Bay Mau"
+      email: "thobaymau@email.com")
+    expect(user).to be_valid
+  end
+Ồ, chúng ta vừa viết gì thể nhỉ? đây là một test case thực thụ cho model User, ta dễ dàng nhận ra rằng ta đã khởi tạo một object user với các thuộc tính firstname, lastname, email.
+
+Còn sau đó? Hàm expect(user) cho biết bạn kì vọng object user bạn vừa khởi tạo trên kia sẽ thỏa mãn điều sau đó chính là "be_valid"
+
+Ez phải không nao?
+
+Cùng bắt tay viết tiếp các test case tiếp theo nào!
+
+ruby
+  it "is invalid without a firstname" do
+    user = User.new
+    expect(user).to have(1).errors_on(:firstname)
+  end
+Chúng ta vừa làm gì thế nhỉ, ta lại khởi tạo mộ object user, nhưng lần này ta không hề gán giá trị nào cho user hết, và lại hàm expect. nhưng lần này điều ta kì vọng là nhận được một lỗ ở trường firstname bạn hãy thử chạy "bundle exec rspec" để nhận thành quả nhé!
+
+Sau đó bạn có thể viết tiếp file spec ban đầu của chúng ta theo hai ví dụ trên đây!
+
+Đừng quên "bundle exec rspec" nhé
+
+Quay lại với test case email
+
+ruby
+  it "is invalid with a duplicate email" do
+    User.create(
+      firstname: "Tho", lastname: "Bay Mau",
+      email: "thobaymau@email.com")
+    user = User.new(
+      firstname: "Bao", lastname: "Hong",
+      email: "thobaymau@email.com")
+    expect(contact).to have(1).errors_on(:email)
+Chú ý rằng ở đây t vừa create và vừa new bởi ta cần phải create thì mới tồn tại user với email "thobaymau@email.com" sau đó mới có thể phát, hiện lỗi khi ta tạo thêm một user với cùng email.
+
+Test case cuối cùng ljlnào!
+
+ruby
+  it "retủn a user's fullname as a string" do
+    user = User.new(
+      firstname: "Tho",
+      lastname: "Bay Mau"
+      email: "thobaymau@email.com")
+    expect(user.name).to eq "Tho Bay Mau"
+  end
+Ta vừa làm gì nhỉ, khác với các test case trước, các test case trước dây, ta tập trung vào validates và tính duy nhất với email, nhưng trong ví dụ này, ta sử dụng rspec để kiểm tra một thuộc tính ảo(virtual attribute) của object user là name. Nó cũng tuơng tự như việc ta test một method của model.
+
+
+BDD cycle :=========================================================================
+Feature: Create book form
+Input data to form
+click submit button
+
+Scenario: Create a new book with invalid params
+  Given I am on "/books/new"
+  When I fill in "book[name]" with "Linh"
+  When I press "Create Book"
+  Then I should see "Author can't be blank"
+
+Scenario: Create a new book with valid params
+  Given I am on "/books/new"
+  When I fill in "book[name]" with "Linh"
+  When I fill in "book[author]" with "Linh"
+  When I press "Create Book"
+  Then I should see "Book was successfully created."
+  
+ =========================== file features/step_definitions/books_steps.rb
+  Given /^I am on "(.+)"$/ do |page_path|
+  visit page_path
+end
+
+When /^I fill in "(.+)" with "(.+)"$/ do |field, value|
+  fill_in(field, with: value)
+end
+
+When /^I press "([^\"]*)"$/ do |button|
+  click_button(button)
+end
+
+Then /^I should see "([^\"]*)"$/ do |text|
+  page.has_content? text
+end
+=============== Rake cucumber
+
+Using the default profile...
+Feature: Create book form
+  Input data to form
+  click submit button
+
+  Scenario: Create a new book with invalid params # features/book.feature:5
+    Given I am on "/books/new"                    # features/step_definitions/books_steps.rb:1
+    When I fill in "book[name]" with "Linh"       # features/step_definitions/books_steps.rb:5
+    When I press "Create Book"                    # features/step_definitions/books_steps.rb:9
+    Then I should see "Author can't be blank"     # features/step_definitions/books_steps.rb:13
+
+  Scenario: Create a new book with valid params        # features/book.feature:11
+    Given I am on "/books/new"                         # features/step_definitions/books_steps.rb:1
+    When I fill in "book[name]" with "Linh"            # features/step_definitions/books_steps.rb:5
+    When I fill in "book[author]" with "Linh"          # features/step_definitions/books_steps.rb:5
+    When I press "Create Book"                         # features/step_definitions/books_steps.rb:9
+    Then I should see "Book was successfully created." # features/step_definitions/books_steps.rb:13
+
+2 scenarios (2 passed)
+9 steps (9 passed)
+
+========================
 
 == Getting Started
 
